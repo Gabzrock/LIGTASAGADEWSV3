@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Landslide Warning Map</title>
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <!-- Leaflet Locate Control CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" />
+        <!-- Leaflet Search Control CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-search@3.0.2/dist/leaflet-search.min.css" />
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <!-- Leaflet Locate Control JS -->
+        <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
+        <!-- Leaflet Search Control JS -->
+        <script src="https://cdn.jsdelivr.net/npm/leaflet-search@3.0.2/dist/leaflet-search.min.js"></script>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+            }
+            #map {
+                height: 100vh;
+                width: 100%;
+            }
+            #controls {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                z-index: 1000;
+                background: white;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            }
+            #controls button {
+                display: block;
+                margin: 5px 0;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            /* Flashing animations for buffers */
+            @keyframes flash-yellow {
+                0%, 50% { fill-opacity: 0.3; }
+                25%, 75% { fill-opacity: 0.8; }
+            }
+            @keyframes flash-orange {
+                0%, 50% { fill-opacity: 0.3; }
+                25%, 75% { fill-opacity: 0.8; }
+            }
+            @keyframes flash-red {
+                0%, 50% { fill-opacity: 0.3; }
+                25%, 75% { fill-opacity: 0.8; }
+            }
+            .flash-yellow {
+                animation: flash-yellow 1s infinite;
+            }
+            .flash-orange {
+                animation: flash-orange 1s infinite;
+            }
+            .flash-red {
+                animation: flash-red 1s infinite;
+            }
+            /* Scrollable popup content */
+            .popup-content {
+                max-height: 600px;
+                max-width: 500px;
+                overflow-y: auto;
+                font-size: 10px;
+            }
+            .popup-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .popup-table th, .popup-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+                vertical-align: top;
+            }
+            .popup-table th {
+                background-color: #f2f2f2;
+            }
+            .popup-table img {
+                max-width: 100%;
+                height: auto;
+            }
+            /* Custom popup styling */
+            .leaflet-popup-content-wrapper {
+                background-color: #008080; /* Teal blue */
+                color: white; /* Ensure text is visible */
+            }
+            .leaflet-popup-content {
+                margin: 0; /* Remove default margin */
+            }
+            .popup-content h3, .popup-content h4 {
+                color: #FFA500; /* Orange */
+                margin-top: 0;
+            }
+            .leaflet-popup-tip {
+                background-color: #008080; /* Match the wrapper */
+            }
+            /* Custom toggle switch styles for layer control checkboxes */
+            .leaflet-control-layers input[type="checkbox"] {
+                display: none; /* Hide the default checkbox */
+            }
+
+            .leaflet-control-layers label {
+                position: relative;
+                display: block;
+                padding-left: 50px; /* Space for the switch */
+                cursor: pointer;
+                font-size: 14px;
+                line-height: 20px;
+            }
+
+            .leaflet-control-layers label::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 40px;
+                height: 20px;
+                background: #ccc;
+                border-radius: 10px;
+                transition: background 0.3s;
+            }
+
+            .leaflet-control-layers label::after {
+                content: '';
+                position: absolute;
+                left: 2px;
+                top: 2px;
+                width: 16px;
+                height: 16px;
+                background: #fff;
+                border-radius: 50%;
+                transition: transform 0.3s;
+            }
+
+            .leaflet-control-layers input[type="checkbox"]:checked + label::before {
+                background: #4CAF50; /* Green when checked */
+            }
+
+            .leaflet-control-layers input[type="checkbox"]:checked + label::after {
+                transform: translateX(20px); /* Slide the knob */
+            }
+
+            /* Optional: Add custom icons/logos next to layer names (using background images) */
+            /* Example: Add a data-icon attribute to layers if needed, e.g., data-icon="icon1.png" */
+            .leaflet-control-layers label[data-icon]:before {
+                background-image: url('path/to/your/icon.png'); /* Replace with actual icon path */
+                background-size: 16px 16px;
+                background-repeat: no-repeat;
+                background-position: center;
+                width: 20px;
+                height: 20px;
+                left: -25px; /* Position icon left of switch */
+            }
+
+            /* Custom legend styles */
+            .legend {
+                background: white;
+                border: 2px solid rgba(0,0,0,0.2);
+                border-radius: 5px;
+                padding: 10px;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            .legend-toggle {
+                background: none;
+                border: none;
+                font-size: 16px;
+                cursor: pointer;
+                width: 100%;
+                text-align: left;
+                padding: 0;
+                margin-bottom: 10px;
+            }
+            .legend-content {
+                transition: display 0.3s;
+            }
+            .legend-content.hidden {
+                display: none;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 5px;
+            }
+            .legend-logo {
+                width: 20px;
+                height: 20px;
+                margin-right: 8px;
+                background-size: cover;
+            }
+            .legend-swatch {
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                margin-right: 8px;
+                border: 1px solid #000;
+            }
+            .legend-text {
+                font-size: 12px;
+            }
+
+            /* Custom header panel styles */
+            .header-panel {
+                background: rgba(255, 255, 255, 0.9);
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                max-width: 600px; /* Adjust for responsiveness */
+            }
+            .header-logo {
+                width: 40px;
+                height: 40px;
+                background-size: cover;
+                margin-right: 10px;
+            }
+            .header-buttons {
+                display: flex;
+                gap: 10px;
+            }
+            .header-button {
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 12px;
+            }
+            .header-button:hover {
+                background: #0056b3;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script>
+            // Initialize the map (centered on the Philippines, adjust as needed)
+            var map = L.map('map').setView([12.8797, 121.7740], 6); // Approximate center of Philippines
+
+            // Define base layers
+            var streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            });
+
+            var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
+
+            var hybrid = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }).addTo(map); // Set hybrid as default
+
+            var topo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, and NPS'
+            });
+
+            // Initialize GeoJSON layer as empty layer group
+            var geojsonLayer = L.layerGroup();
+
+            // Add layer control with overlays, positioned at bottom-right to avoid overlap
+            var baseLayers = {
+                "Streets": streets,
+                "Satellite": satellite,
+                "Hybrid": hybrid,
+                "Topo": topo
+            };
+
+            var overlays = {};
+
+            // Add scale bar
+            L.control.scale().addTo(map);
+
+            // Add GPS (locate) control
+            L.control.locate().addTo(map);
+
+            // Add search bar
+            var searchControl = new L.Control.Search({
+                url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+                jsonpParam: 'json_callback',
+                propertyName: 'display_name',
+                propertyLoc: ['lat', 'lon'],
+                marker: L.circleMarker([0, 0], { radius: 30 }),
+                autoCollapse: true,
+                autoType: false,
+                minLength: 2
+            });
+            searchControl.on('search:locationfound', function(e) {
+                if (e.layer._popup) e.layer.openPopup();
+            });
+            map.addControl(searchControl);
+
+
+
+            // Function to create a GeoJSON layer (now includes description and dot markers)
+            function createGeoJSONLayer(name, description, geojsonUrl, styleOptions = {}) {
+                const fullName = `${name}: ${description}`;  // Append description to name
+                return fetch(geojsonUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                    const layer = L.geoJSON(data, {
+                        style: styleOptions,
+                        pointToLayer: (feature, latlng) => {
+                            return L.circleMarker(latlng, {
+                                color: styleOptions.color || 'blue',  // Border color
+                                fillColor: styleOptions.color || 'blue',  // Fill color
+                                fillOpacity: 0.8,
+                                radius: 6  // Size of the dot (adjust as needed)
+                            });
+                        },
+                        onEachFeature: (feature, layer) => {
+                            // Generate popup content from all properties
+                            let popupContent = '<strong>Attributes:</strong><br>';
+                            if (feature.properties) {
+                                for (const [key, value] of Object.entries(feature.properties)) {
+                                    popupContent += `${key}: ${value}<br>`;
+                                }
+                            } else {
+                                popupContent += 'No attributes available.';
+                            }
+                            layer.bindPopup(popupContent);
+                        }
+                    });
+                    overlays[fullName] = layer;  // Use full name with description as key
+                    return layer;
+                })
+                    .catch(error => console.error(`Error loading ${name}:`, error));
+            }
+            // Define logos for each layer (replace with your logo URLs or data URIs)
+            const layerLogos = [
+                'https://example.com/logo1.png', // Layer 1
+                'https://example.com/logo2.png', // Layer 2
+                'https://example.com/logo3.png', // Layer 3
+                'https://example.com/logo4.png', // Layer 4
+                'https://example.com/logo5.png', // Layer 5
+                'https://example.com/logo6.png', // Layer 6
+                'https://example.com/logo7.png', // Layer 7
+                'https://example.com/logo8.png', // Layer 8
+                'https://ligtas.uplb.edu.ph/wp-content/uploads/2022/04/3-e1659971771933.png', // Layer 9
+                'https://ligtas.uplb.edu.ph/wp-content/uploads/2022/02/SARAI.png',
+                'https://ligtas.uplb.edu.ph/wp-content/uploads/2022/10/DOST-ASTI-Logo-RGB-e1722929759841.png' // Layer 10// Layer 10 
+            ];
+
+            // Define layer data (name, description, color)
+            const layerData = [
+                { name: 'PH Boundary', desc: 'Philippine Boundary', color: 'white' },
+                { name: 'LIGTAS-LSDB', desc: 'Recorded Landslides', color: 'orange' },
+                { name: 'MGB', desc: 'HIGH Rainfall-Induced Landslide Susceptibility', color: 'red' },
+                { name: 'MGB', desc: 'MED Rainfall-Induced Landslide Susceptibility', color: 'yellow' },
+                { name: 'MGB', desc: 'LOW Rainfall-Induced Landslide Susceptibility', color: 'green' },
+                { name: 'CAR Boundary', desc: 'CAR Boundary', color: 'blue' },
+                { name: 'Bicol Boundary', desc: 'Bicol Boundary', color: 'purple' },
+                { name: 'CALABARZON Boundary', desc: 'CALABARZON Boundary', color: 'brown' },
+                { name: 'LIGTAS AWS', desc: 'LIGTAS AWS', color: 'white' },
+                { name: 'SARAI AWS', desc: 'SARAI AWS', color: 'white' },
+                { name: 'ASTI AWS', desc: 'ASTI AWS', color: 'white' }
+            ];
+
+            // Array of layer promises with descriptions (replace URLs and descriptions with your data)
+            const layerPromises = [
+                createGeoJSONLayer('LIGTAS-LSDB', 'LIGTAS-AGAD Landslide database', 'https://raw.githubusercontent.com/Gabzrock/LIGTAS-AGAD/refs/heads/main/LandslideDB-web.geojson', { color: 'orange', weight: 2 }),
+                createGeoJSONLayer('PH boundary', 'Philippine Boundary', 'https://raw.githubusercontent.com/Gabzrock/LIGTAS-AGAD/refs/heads/main/country.0.01.json', { color: 'white', weight: 1 }),
+                createGeoJSONLayer('CALABARZON', 'CALABARZON_Boundary', 'file:///C:/LIGTAS-EWS/CALABARZON-web.geojson', { color: 'blue', weight: 2 }),
+                createGeoJSONLayer('CAR', 'CAR_Boundary', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uCAR-web.geojson', { color: 'blue', weight: 2 }),
+                createGeoJSONLayer('MGB-HIGH', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_High%20Susceptibility.geojson', { color: 'red',fillOpacity:1.3}),
+                createGeoJSONLayer('MGB-MED', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_Moderate_Susceptibility.geojson', { color: 'yellow',fillOpacity:1.3}),
+                createGeoJSONLayer('MGB-LOW', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_Low_Susceptibility.geojson', { color: 'green',fillOpacity:1.3}),
+                createGeoJSONLayer('Bicol', 'Bicol_Region', 'file:///C:/LIGTAS-EWS/Bicol-web.geojson', { color: 'blue', weight: 2 }),
+                createGeoJSONLayer('Layer 9', 'Administrative boundaries', 'https://example.com/layer9.geojson', { color: 'gray', weight: 2 }),
+                createGeoJSONLayer('Layer 10', 'Utility lines and infrastructure', 'https://example.com/layer10.geojson', { color: 'black', weight: 2 })
+            ];
+
+            // Custom Legend Control with toggle button
+            const LegendControl = L.Control.extend({
+                options: { position: 'bottomright' },
+                onAdd: function(map) {
+                    const container = L.DomUtil.create('div', 'legend');
+                    const toggleBtn = L.DomUtil.create('button', 'legend-toggle', container);
+                    toggleBtn.innerHTML = '▼ Legend';  // Initial state: shown
+                    const content = L.DomUtil.create('div', 'legend-content', container);
+                    layerData.forEach((data, index) => {
+                        const item = L.DomUtil.create('div', 'legend-item', content);
+                        item.innerHTML = `
+<img src="${layerLogos[index]}" class="legend-logo" alt="${data.name} logo">
+<div class="legend-swatch" style="background-color: ${data.color};"></div>
+<div class="legend-text"><strong>${data.name}</strong>: ${data.desc}</div>
+`;
+                    });
+                    // Add click event to toggle
+                    L.DomEvent.on(toggleBtn, 'click', () => {
+                        if (content.classList.contains('hidden')) {
+                            content.classList.remove('hidden');
+                            toggleBtn.innerHTML = '▼ Legend';
+                        } else {
+                            content.classList.add('hidden');
+                            toggleBtn.innerHTML = '▶ Legend';
+                        }
+                    });
+                    return container;
+                }
+            });
+
+            // Custom Header Panel Control
+            const HeaderPanelControl = L.Control.extend({
+                options: { position: 'topcenter' },  // Position at top-center
+                onAdd: function(map) {
+                    const container = L.DomUtil.create('div', 'header-panel');
+                    container.innerHTML = `
+<img src="https://example.com/your-logo.png" class="header-logo" alt="Logo">  <!-- Replace with your logo URL -->
+<div class="header-buttons">
+<button class="header-button" id="home-btn">Home</button>
+<button class="header-button" id="landslide-btn">Report a Landslide</button>
+<button class="header-button" id="aws-btn">AWS Monitoring</button>
+<button class="header-button" id="about-btn">About</button>
+<button class="header-button" id="services-btn">Other Services</button>
+            </div>
+`;
+                    // Add button actions (replace with your logic, e.g., navigation or modals)
+                    L.DomEvent.on(container.querySelector('#home-btn'), 'click', () => alert('Navigating to Home'));
+                    L.DomEvent.on(container.querySelector('#landslide-btn'), 'click', () => alert('Opening Landslide Report Form'));
+                    L.DomEvent.on(container.querySelector('#aws-btn'), 'click', () => alert('Opening AWS Monitoring Dashboard'));
+                    L.DomEvent.on(container.querySelector('#about-btn'), 'click', () => alert('Showing About Page'));
+                    L.DomEvent.on(container.querySelector('#services-btn'), 'click', () => alert('Showing Other Services'));
+                    return container;
+                }
+            });
+
+            // Wait for all layers to load, then add the controls
+            Promise.all(layerPromises).then(() => {
+                // Add a single combined layer control for base layers and overlays
+                L.control.layers(baseLayers, overlays, { position: 'topright' }).addTo(map);
+                // Add custom legend
+                map.addControl(new LegendControl());
+                // Add custom header panel
+                map.addControl(new HeaderPanelControl());
+                // Optional: Add some layers by default (e.g., Layer 1 and Layer 2)
+                overlays['Layer 1: Points of interest in the city'].addTo(map);
+                overlays['Layer 2: River boundaries and waterways'].addTo(map);
+            });
+
+            // Function to get buffer color and class based on RainfallLandslidethresholdwarninglevel
+            function getBufferStyle(warningLevel) {
+                if (warningLevel === 1) return { color: 'yellow', fillColor: 'yellow', className: 'flash-yellow' };
+                if (warningLevel === 2) return { color: 'orange', fillColor: 'orange', className: 'flash-orange' };
+                if (warningLevel === 3) return { color: 'red', fillColor: 'red', className: 'flash-red' };
+                return { color: 'transparent', fillColor: 'transparent', className: '' }; // For "down" or any other value
+            }
+
+            // Function to fetch forecast data (using OpenWeatherMap API - replace with your API key)
+            async function getForecast(lat, lng) {
+                const apiKey = 'bd5e378503939ddaee76f12ad7a97608'; // Replace with your actual API key
+                const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&appid=${apiKey}&units=metric`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.cod !== '200') throw new Error('Forecast data not available');
+                    // Extract next 5 days forecast (assuming 3-hour intervals, take one per day)
+                    let forecastHtml = '<h4>5-Day Weather Forecast</h4><table class="popup-table"><tr><th>Date</th><th>Temp (°C)</th><th>Description</th><th>Rain (mm)</th></tr>';
+                    const dailyForecasts = {};
+                    data.list.forEach(item => {
+                        const date = new Date(item.dt * 1000).toDateString();
+                        if (!dailyForecasts[date]) {
+                            dailyForecasts[date] = {
+                                temp: item.main.temp,
+                                desc: item.weather[0].description,
+                                rain: item.rain ? item.rain['3h'] || 0 : 0
+                            };
+                        }
+                    });
+                    Object.keys(dailyForecasts).slice(0, 5).forEach(date => {
+                        const f = dailyForecasts[date];
+                        forecastHtml += `<tr><td>${date}</td><td>${f.temp}</td><td>${f.desc}</td><td>${f.rain}</td></tr>`;
+                    });
+                    forecastHtml += '</table>';
+                    return forecastHtml;
+                } catch (error) {
+                    console.error('Error fetching forecast:', error);
+                    return '<p>Forecast data unavailable. Please try again later.</p>';
+                }
+            }
+
+            // Add click event to pin location and show forecast
+            map.on('click', async function(e) {
+                const lat = e.latlng.lat.toFixed(6);
+                const lng = e.latlng.lng.toFixed(6);
+                const forecastData = await getForecast(lat, lng);
+                const popupContent = `
+<div class="popup-content">
+<h3>Pinned Location</h3>
+<p><strong>Latitude:</strong> ${lat}</p>
+<p><strong>Longitude:</strong> ${lng}</p>
+${forecastData}
+            </div>
+`;
+                L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(popupContent)
+                    .openOn(map);
+            });
+
+            // Fetch data from Sheetlabs API (replace with your actual API endpoint)
+            // Example endpoint: https://sheetlabs.com/API/YOUR_SHEET_ID (you need to provide the real one)
+            fetch('https://sheetlabs.com/LIGT/LIGTASEWS') // Replace with actual Sheetlabs API URL
+                .then(response => response.json())
+                .then(data => {
+                data.forEach(station => {
+                    var lat = parseFloat(station.Latitude);
+                    var lng = parseFloat(station.Longitude);
+                    var warningLevel = parseInt(station.RainfallLandslidethresholdwarninglevel);
+                    var bufferStyle = getBufferStyle(warningLevel);
+
+                    // Create a buffer circle around the station (radius set to 20 kilometers)
+                    var bufferRadius = 20000; // Meters (20 km)
+                    var circle = L.circle([lat, lng], {
+                        color: bufferStyle.color,
+                        fillColor: bufferStyle.fillColor,
+                        fillOpacity: 0.3,
+                        radius: bufferRadius,
+                        className: bufferStyle.className
+                    }).addTo(map);
+
+                    // Create custom marker icon if 'Icon' is provided
+                    var marker;
+                    if (station.Icon) {
+                        var customIcon = L.icon({
+                            iconUrl: station.Icon,
+                            iconSize: [25, 25], // Adjust size as needed
+                            iconAnchor: [12, 25],
+                            popupAnchor: [0, -25]
+                        });
+                        marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+                    } else {
+                        marker = L.marker([lat, lng]).addTo(map);
+                    }
+
+                    // Create popup content with a scrollable table
+                    var popupContent = `
+<div class="popup-content">
+<h3>${station.StationName || station.Station}</h3>
+<table class="popup-table">
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>Station</td><td>${station.Station}</td></tr>
+<tr><td>Station Name</td><td>${station.StationName}</td></tr>
+<tr><td>Date Installed</td><td>${station.DateInstalled}</td></tr>
+<tr><td>Status</td><td>${station.Status}</td></tr>
+<tr><td>Latitude</td><td>${station.Latitude}</td></tr>
+<tr><td>Longitude</td><td>${station.Longitude}</td></tr>
+<tr><td>Elevation</td><td>${station.Elevation}</td></tr>
+<tr><td>Location Details</td><td>${station.LocationDetails}</td></tr>
+<tr><td>Rainfall</td><td>${station.Rainfall}</td></tr>
+<tr><td>Rainfall Landslide Threshold Warning Level</td><td>${station.RainfallLandslidethresholdwarninglevel}</td></tr>
+<tr><td>Rainfall Description</td><td>${station.Rainfalldescription}</td></tr>
+<tr><td>Possible Scenario</td><td>${station.Possiblescenario}</td></tr>
+<tr><td>Recommended Actions</td><td>${station.Recommendedactions}</td></tr>
+<tr><td>Warning Level Guide</td><td><img src="${station.Warninglevelguide}" alt="Warning Level Guide" /></td></tr>
+<tr><td>Image Link</td><td><img src="${station.Imagelink}" alt="Image" /></td></tr>
+<tr><td>Municipality and Barangay Covered</td><td>${station.Daterange}</td></tr>
+            </table>
+            </div>
+`;
+
+                    // Bind popup to both marker and circle
+                    marker.bindPopup(popupContent);
+                    circle.bindPopup(popupContent);
+                });
+            })
+                .catch(error => {
+                console.error('Error fetching data from API:', error);
+                alert('Failed to load data from API. Check the console for details.');
+            });
+        </script>
+    </body>
+</html>
