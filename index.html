@@ -242,12 +242,93 @@
             .header-button:hover {
                 background: #0056b3;
             }
+            #loading-screen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: teal; /* Teal to orange gradient */
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                animation: fadeIn 1s ease-in-out;
+            }
+            #loading-screen.hidden {
+                animation: fadeOut 1s ease-in-out forwards;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; visibility: hidden; }
+            }
+            .logo {
+                font-size: 4rem;
+                color: #FFA500;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            }
+            .loading-text {
+                font-size: 2rem;
+                color: white;
+                margin-bottom: 30px;
+                font-weight: bold;
+            }
+            .spinner {
+                width: 50px;
+                height: 50px;
+                border: 5px solid #FFA500;
+                border-top: 5px solid #008080;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 20px;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .progress-container {
+                width: 300px;
+                height: 20px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 10px;
+                overflow: hidden;
+                position: relative;
+            }
+            .progress-bar {
+                height: 100%;
+                background: linear-gradient(90deg, #008080, #FFA500);
+                width: 0%;
+                animation: landslide 10s linear forwards; /* 10-second landslide animation */
+            }
+            @keyframes landslide {
+                0% { width: 0%; }
+                100% { width: 100%; }
+            }
 
         </style>
     </head>
     <body>
+        <div id="loading-screen">
+            <div class="logo"><img src="https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/LIGTAS.png" alt="Logo" width="200" height="200" ></div> <!-- Placeholder logo (mountain icon). Replace with <img src="your-logo-url.png" alt="Logo"> -->
+            <div class="loading-text">Rainfall-Induced Landslide Early Warning System (RILEWS)</div>
+            <div class="spinner"></div>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
         <div id="map"></div>
         <script>
+
+            // Hide loading screen after 10 seconds
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }, 10000); // 10 seconds
             // Initialize the map (centered on the Philippines, adjust as needed)
             var map = L.map('map').setView([12.8797, 121.7740], 6); // Approximate center of Philippines
 
@@ -378,7 +459,7 @@
                 createGeoJSONLayer('MGB-HIGH', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_High%20Susceptibility.geojson', { color: 'red',fillOpacity:1.3}),
                 createGeoJSONLayer('MGB-MED', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_Moderate_Susceptibility.geojson', { color: 'yellow',fillOpacity:1.3}),
                 createGeoJSONLayer('MGB-LOW', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_Low_Susceptibility.geojson', { color: 'green',fillOpacity:1.3}),
-                createGeoJSONLayer('Bicol', 'Bicol_Region', '', { color: 'blue', weight: 2 }),
+                createGeoJSONLayer('Bicol', 'Bicol_Region', 'file:///C:/LIGTAS-EWS/Bicol-web.geojson', { color: 'blue', weight: 2 }),
                 createGeoJSONLayer('Layer 9', 'Administrative boundaries', '', { color: 'gray', weight: 2 }),
                 createGeoJSONLayer('Layer 10', 'Utility lines and infrastructure', '', { color: 'black', weight: 2 })
             ];
@@ -415,7 +496,7 @@
 
             // Custom Header Panel Control
             const HeaderPanelControl = L.Control.extend({
-                options: { position: 'topcenter' },  // Position at top-center
+                options: { position: 'left' },  // Position at top-center
                 onAdd: function(map) {
                     const container = L.DomUtil.create('div', 'header-panel');
                     container.innerHTML = `
@@ -528,8 +609,9 @@ ${forecastData}
                         color: bufferStyle.color,
                         fillColor: bufferStyle.fillColor,
                         fillOpacity: 0.3,
+                        dashArray: 5.10,
+
                         radius: bufferRadius,
-                        dashArray: "5 10",
                         className: bufferStyle.className
                     }).addTo(map);
 
