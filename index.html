@@ -310,6 +310,19 @@
                 0% { width: 0%; }
                 100% { width: 100%; }
             }
+            #toggle-buffer {
+                position: absolute;
+                top: 60px;
+                right: 10px;
+                z-index: 1000;
+                background: teal;
+                color: white;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+            }
 
         </style>
     </head>
@@ -323,6 +336,8 @@
             </div>
         </div>
         <div id="map"></div>
+        <button id="toggle-buffer">Show/Hide Warnings</button>
+
         <script>
 
             // Hide loading screen after 10 seconds
@@ -615,6 +630,20 @@ ${forecastData}
                         className: bufferStyle.className
                     }).addTo(map);
 
+                    // Toggle button functionality
+                    const toggleButton = document.getElementById('toggle-buffer');
+                    let bufferVisible = true;
+
+                    toggleButton.addEventListener('click', () => {
+                        if (bufferVisible) {
+                            map.removeLayer(circle);
+                            toggleButton.textContent = 'Show Buffer';
+                        } else {
+                            map.addLayer(circle);
+                            toggleButton.textContent = 'Hide Buffer';
+                        }
+                        bufferVisible = !bufferVisible;
+                    });
                     // Create custom marker icon if 'Icon' is provided
                     var marker;
                     if (station.Icon) {
@@ -643,7 +672,7 @@ ${forecastData}
 <tr><td>Longitude</td><td>${station.Longitude}</td></tr>
 <tr><td>Elevation</td><td>${station.Elevation}</td></tr>
 <tr><td>Location Details</td><td>${station.LocationDetails}</td></tr>
-<tr><td>Antecedent+Cummulative rainfall (mm)</td><td>${station.Rainfall}</td></tr>
+<tr><td>Antecedent + Accumulated Rainfall ()</td><td>${station.Rainfall}</td></tr>
 <tr><td>Rainfall Landslide Threshold Warning Level</td><td>${station.RainfallLandslidethresholdwarninglevel}</td></tr>
 <tr><td>Rainfall Description</td><td>${station.Rainfalldescription}</td></tr>
 <tr><td>Possible Scenario</td><td>${station.Possiblescenario}</td></tr>
