@@ -406,7 +406,7 @@
                 <button id="playBtn">Play</button>
                 <button id="pauseBtn">Pause</button>
                 <button id="stopBtn">Stop</button>
-                <span id="currentGroup">Current Group: 1</span>
+                <span id="currentGroup">Day: 1</span>
                 <div id="speedControl">
                     <label for="speedSlider">Speed (seconds per group):</label>
                     <input type="range" id="speedSlider" min="1" max="10" value="5" step="1">
@@ -1046,7 +1046,7 @@ ${forecastData}
                 groups[currentGroupIndex].forEach(layer => {
                     if (layer) map.addLayer(layer);
                 });
-                document.getElementById('currentGroup').textContent = `Current Group: ${currentGroupIndex + 1}`;
+                document.getElementById('currentGroup').textContent = `Day: ${currentGroupIndex + 1}`;
                 updateLayerControls();
                 updatePropertiesTable();
             }
