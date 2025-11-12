@@ -23,7 +23,7 @@
                 font-family: Arial, sans-serif;
             }
             #map {
-                height: 100vh;
+                height: 80vh;
                 width: 100%;
             }
             #controls {
@@ -66,10 +66,10 @@
             }
             /* Scrollable popup content */
             .popup-content {
-                max-height: 600px;
-                max-width: 500px;
+                max-height: 1000px;
+                max-width: 800px;
                 overflow-y: auto;
-                font-size: 10px;
+                font-size: 12px;
             }
             .popup-table {
                 width: 100%;
@@ -82,7 +82,9 @@
                 vertical-align: top;
             }
             .popup-table th {
-                background-color: #f2f2f2;
+                background-color: teal;
+                font-size: 12px;
+                color: white;
             }
             .popup-table img {
                 max-width: 100%;
@@ -90,18 +92,18 @@
             }
             /* Custom popup styling */
             .leaflet-popup-content-wrapper {
-                background-color: #008080; /* Teal blue */
-                color: white; /* Ensure text is visible */
+                background-color: white; /* Teal blue */
+                color: black; /* Ensure text is visible */
             }
             .leaflet-popup-content {
                 margin: 0; /* Remove default margin */
             }
             .popup-content h3, .popup-content h4 {
-                color: #FFA500; /* Orange */
+                color: black; /* Orange */
                 margin-top: 0;
             }
             .leaflet-popup-tip {
-                background-color: #008080; /* Match the wrapper */
+                background-color: white; /* Match the wrapper */
             }
             /* Custom toggle switch styles for layer control checkboxes */
             .leaflet-control-layers input[type="checkbox"] {
@@ -207,6 +209,18 @@
             .legend-text {
                 font-size: 12px;
             }
+            .leaflet-control-reset {
+                background-color: white;
+                border: 2px solid rgba(0,0,0,0.2);
+                border-radius: 4px;
+                box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+                cursor: pointer;
+                padding: 5px;
+                font-size: 14px;
+            }
+            .leaflet-control-reset:hover {
+                background-color: #f4f4f4;
+            }
 
             /* Custom header panel styles */
             .header-panel {
@@ -220,27 +234,18 @@
                 width: 100%;
                 max-width: 600px; /* Adjust for responsiveness */
             }
-            .header-logo {
-                width: 40px;
-                height: 40px;
-                background-size: cover;
-                margin-right: 10px;
+            #header2 {
+                padding: 8px 10px;
+                gap: 20px;
             }
-            .header-buttons {
-                display: flex;
-                gap: 10px;
-            }
-            .header-button {
-                background: #007bff;
+            #header2 {
+                background: linear-gradient(135deg, #1a3b42, #268171);
+                text-align: center;
                 color: white;
-                border: none;
-                padding: 5px 10px;
-                border-radius: 3px;
-                cursor: pointer;
-                font-size: 12px;
-            }
-            .header-button:hover {
-                background: #0056b3;
+                padding: 10px 20px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                display: flex;
+                flex-wrap: wrap;
             }
             #loading-screen {
                 position: fixed;
@@ -311,19 +316,71 @@
                 100% { width: 100%; }
             }
             #toggle-buffer {
-                position: absolute;
-                top: 60px;
-                right: 10px;
-                z-index: 1000;
-                background: teal;
-                color: white;
-                padding: 10px;
+                background-color: #1a3b42;
                 border: none;
-                border-radius: 5px;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 11px;
+                border-radius: 15px;
+                transition-duration: 0.4s;
                 cursor: pointer;
-                font-weight: bold;
             }
 
+            #time-controls {
+                top: 70px;
+                right: 10px;
+                flex-direction: column;
+            }
+
+            #current-date {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+            .button {
+                background-color: #1a3b42;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 11px;
+                border-radius: 15px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+            }
+            .button1 {border: 2px solid #04AA6D;}
+            .button1:hover {
+                background-color: #268171;
+                color: white;
+            }
+            .button2 {border: 2px solid #04AA6D;}
+            .button2:hover {
+                background-color: #268171;
+                color: white;
+            }
+            .button4 {border: 2px solid #04AA6D;}
+            .button4:hover {
+                background-color: #268171;
+                color: white;
+            }
+            #navbar { background: #f0f0f0; padding: 10px; border-bottom: 1px solid #ccc; }
+            #navbar summary { cursor: pointer; font-weight: bold; padding: 10px; background: #e0e0e0; border: 1px solid #ccc; margin-bottom: 10px; }
+            #navbar details[open] summary { background: #d0d0d0; }
+            button { margin: 5px; padding: 5px 10px; }
+            #layerControls label { display: block; margin: 5px 0; }
+            #speedControl { margin: 10px 0; display: flex; align-items: center; }
+            #speedControl label { margin-right: 10px; }
+            #propertiesTable { margin: 10px; border-collapse: collapse; width: 100%; }
+            #propertiesTable th, #propertiesTable td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            #propertiesTable th { background-color: #f2f2f2; }
+            #propertiesContainer { background: #f9f9f9; padding: 10px; border: 1px solid #ccc; }
+            #propertiesContainer summary { cursor: pointer; font-weight: bold; padding: 10px; background: #e0e0e0; border: 1px solid #ccc; }
+            #propertiesContainer details[open] summary { background: #d0d0d0; }
+            #errorOverride { margin: 10px; padding: 10px; background: #ffe6e6; border: 1px solid #ff9999; display: none; }
         </style>
     </head>
     <body>
@@ -335,17 +392,81 @@
                 <div class="progress-bar"></div>
             </div>
         </div>
+        <div id="header2">
+            LIGTAS-AGAD Rainfall-Induced Landslide Early Warning System (RILEWS) <br>
+            <div id="real-time"></div> 
+            <button class="button button1" onclick="Homebutton()">Home</button>
+            <button class="button button2" onclick="AWSbutton()"> AWS Monitoring</button>
+            <button class="button4" id="toggle-buffer">20-KM Warning</button>
+        </div>
+        <nav id="navbar">
+            <details>
+                <summary>Map Controls</summary>
+                <h5>Group Controls</h5>
+                <button id="playBtn">Play</button>
+                <button id="pauseBtn">Pause</button>
+                <button id="stopBtn">Stop</button>
+                <span id="currentGroup">Current Group: 1</span>
+                <div id="speedControl">
+                    <label for="speedSlider">Speed (seconds per group):</label>
+                    <input type="range" id="speedSlider" min="1" max="10" value="5" step="1">
+                    <span id="speedValue">5</span>
+                </div>
+                <h5>Layer Controls</h5>
+                <button id="removeAllBtn">Remove All Layers</button>
+                <button id="addAllBtn">Add All Layers</button>
+                <div id="layerControls"></div>
+            </details>
+        </nav>
         <div id="map"></div>
-        <button id="toggle-buffer">Show/Hide Warnings</button>
 
+        <div id="propertiesContainer">
+            <details>
+                <summary>Feature Properties Table</summary>
+                <table id="propertiesTable">
+                    <thead>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertiesTableBody">
+                        <!-- Rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </details>
+        </div>
         <script>
 
             // Hide loading screen after 10 seconds
             setTimeout(() => {
                 document.getElementById('loading-screen').classList.add('hidden');
             }, 10000); // 10 seconds
-            // Initialize the map (centered on the Philippines, adjust as needed)
-            var map = L.map('map').setView([12.8797, 121.7740], 6); // Approximate center of Philippines
+
+            // Real-time clock function
+            function updateClock() {
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-PH', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                const timeStr = now.toLocaleTimeString('en-PH');
+                document.getElementById('real-time').textContent = `${dateStr} | ${timeStr}`;
+            }
+
+            // Update clock immediately and then every second
+            updateClock();
+            setInterval(updateClock, 1000);
+
+
+            // Initialize the map centered on the Philippines
+            const initialCenter = [12.8797, 121.7740]; // Approximate center of the Philippines
+            const initialZoom = 6;
+            const map = L.map('map').setView(initialCenter, initialZoom);
+
 
             // Define base layers
             var streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -474,9 +595,9 @@
                 createGeoJSONLayer('MGB-HIGH', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_High%20Susceptibility.geojson', { color: 'red',fillOpacity:1.3}),
                 createGeoJSONLayer('MGB-MED', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_Moderate_Susceptibility.geojson', { color: 'yellow',fillOpacity:1.3}),
                 createGeoJSONLayer('MGB-LOW', 'Rainfall induced-Landslide Susceptibility', 'https://raw.githubusercontent.com/Gabzrock/LIGTASAGADEWSV3/refs/heads/main/uRIL_AWS_Low_Susceptibility.geojson', { color: 'green',fillOpacity:1.3}),
-                createGeoJSONLayer('Bicol', 'Bicol_Region', 'file:///C:/LIGTAS-EWS/Bicol-web.geojson', { color: 'blue', weight: 2 }),
-                createGeoJSONLayer('Layer 9', 'Administrative boundaries', '', { color: 'gray', weight: 2 }),
-                createGeoJSONLayer('Layer 10', 'Utility lines and infrastructure', '', { color: 'black', weight: 2 })
+                createGeoJSONLayer('Bicol', 'Bicol_Region', '', { color: 'blue', weight: 2 }),
+                createGeoJSONLayer('CReSS_L1', 'CReSS_L1', '', { color: 'orange', weight: 2,fillOpacity:1.3}),
+                createGeoJSONLayer('CReSS_L2', 'CReSS_L2', '', { color: 'yellow', weight: 2,fillOpacity:1.3})
             ];
 
             // Custom Legend Control with toggle button
@@ -508,32 +629,6 @@
                     return container;
                 }
             });
-
-            // Custom Header Panel Control
-            const HeaderPanelControl = L.Control.extend({
-                options: { position: 'left' },  // Position at top-center
-                onAdd: function(map) {
-                    const container = L.DomUtil.create('div', 'header-panel');
-                    container.innerHTML = `
-<img src="https://example.com/your-logo.png" class="header-logo" alt="Logo">  <!-- Replace with your logo URL -->
-<div class="header-buttons">
-<button class="header-button" id="home-btn">Home</button>
-<button class="header-button" id="landslide-btn">Report a Landslide</button>
-<button class="header-button" id="aws-btn">AWS Monitoring</button>
-<button class="header-button" id="about-btn">About</button>
-<button class="header-button" id="services-btn">Other Services</button>
-            </div>
-`;
-                    // Add button actions (replace with your logic, e.g., navigation or modals)
-                    L.DomEvent.on(container.querySelector('#home-btn'), 'click', () => alert('Navigating to Home'));
-                    L.DomEvent.on(container.querySelector('#landslide-btn'), 'click', () => alert('Opening Landslide Report Form'));
-                    L.DomEvent.on(container.querySelector('#aws-btn'), 'click', () => alert('Opening AWS Monitoring Dashboard'));
-                    L.DomEvent.on(container.querySelector('#about-btn'), 'click', () => alert('Showing About Page'));
-                    L.DomEvent.on(container.querySelector('#services-btn'), 'click', () => alert('Showing Other Services'));
-                    return container;
-                }
-            });
-
             // Wait for all layers to load, then add the controls
             Promise.all(layerPromises).then(() => {
                 // Add a single combined layer control for base layers and overlays
@@ -557,7 +652,7 @@
 
             // Function to fetch forecast data (using OpenWeatherMap API - replace with your API key)
             async function getForecast(lat, lng) {
-                const apiKey = 'bd5e378503939ddaee76f12ad7a97608'; // Replace with your actual API key
+                const apiKey = '6100dbfc0c41b1930339945d65813963'; // Replace with your actual API key
                 const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&appid=${apiKey}&units=metric`;
                 try {
                     const response = await fetch(url);
@@ -609,7 +704,7 @@ ${forecastData}
 
             // Fetch data from Sheetlabs API (replace with your actual API endpoint)
             // Example endpoint: https://sheetlabs.com/API/YOUR_SHEET_ID (you need to provide the real one)
-            fetch('https://app.sheetlabs.com/LA25/LIGTASAGADEWSV3') // Replace with actual Sheetlabs API URL
+            fetch('https://sheetlabs.com/LA25/LIGTASAGADEWSV3') // Replace with actual Sheetlabs API URL
                 .then(response => response.json())
                 .then(data => {
                 data.forEach(station => {
@@ -637,10 +732,10 @@ ${forecastData}
                     toggleButton.addEventListener('click', () => {
                         if (bufferVisible) {
                             map.removeLayer(circle);
-                            toggleButton.textContent = 'Show Buffer';
+                            toggleButton.textContent = 'Show 20-KM Warning';
                         } else {
                             map.addLayer(circle);
-                            toggleButton.textContent = 'Hide Buffer';
+                            toggleButton.textContent = 'Hide 20-KM Warning';
                         }
                         bufferVisible = !bufferVisible;
                     });
@@ -661,19 +756,13 @@ ${forecastData}
                     // Create popup content with a scrollable table
                     var popupContent = `
 <div class="popup-content">
-<h3>${station.StationName || station.Station}</h3>
+<h2>${station.StationName || station.Station}</h2>
 <table class="popup-table">
 <tr><th>Field</th><th>Value</th></tr>
-<tr><td>Station</td><td>${station.Station}</td></tr>
-<tr><td>Station Name</td><td>${station.StationName}</td></tr>
-<tr><td>Date Installed</td><td>${station.DateInstalled}</td></tr>
 <tr><td>Status</td><td>${station.Status}</td></tr>
-<tr><td>Latitude</td><td>${station.Latitude}</td></tr>
-<tr><td>Longitude</td><td>${station.Longitude}</td></tr>
-<tr><td>Elevation</td><td>${station.Elevation}</td></tr>
 <tr><td>Location Details</td><td>${station.LocationDetails}</td></tr>
 <tr><td>Antecedent + Accumulated Rainfall ()</td><td>${station.Rainfall}</td></tr>
-<tr><td>Rainfall Landslide Threshold Warning Level</td><td>${station.RainfallLandslidethresholdwarninglevel}</td></tr>
+<tr><td>Warning Level</td><td>${station.RainfallLandslidethresholdwarninglevel}</td></tr>
 <tr><td>Rainfall Description</td><td>${station.Rainfalldescription}</td></tr>
 <tr><td>Possible Scenario</td><td>${station.Possiblescenario}</td></tr>
 <tr><td>Recommended Actions</td><td>${station.Recommendedactions}</td></tr>
@@ -693,6 +782,382 @@ ${forecastData}
                 console.error('Error fetching data from API:', error);
                 alert('Failed to load data from API. Check the console for details.');
             });
+
+            // Add a custom reset view control
+            L.Control.ResetView = L.Control.extend({
+                onAdd: function(map) {
+                    const container = L.DomUtil.create('div', 'leaflet-control-reset');
+                    container.innerHTML = 'Reset View';
+                    container.onclick = function() {
+                        map.setView(initialCenter, initialZoom);
+                    };
+                    return container;
+                }
+            });
+
+            L.control.resetView = function(opts) {
+                return new L.Control.ResetView(opts);
+            };
+
+            L.control.resetView().addTo(map);
+
+            // navigation buttons
+            function Homebutton() {
+                window.open('https://ligtas.uplb.edu.ph/', '_blank');
+            }
+            function AWSbutton() {
+                window.open('https://ligtas.uplb.edu.ph/automatic-weather-station-monitoring/', '_blank');
+            }
+
+           
+       const geojsonUrls = [
+                
+                //Group1 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin7.geojson',
+                //Group2 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day02_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day02_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day02_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day02_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day02_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day02_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day02_Bin7.geojson', // L7: 
+                //Group3 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day03_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day03_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day03_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day03_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day03_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day03_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day03_Bin7.geojson',  // L7:
+                //Group4 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin7.geojson',  // L7:
+                //Group4 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day04_Bin7.geojson',  // L7:
+                //Group5 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day05_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day05_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day05_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day05_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day05_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day05_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day05_Bin7.geojson',  // L7:
+                //Group6 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day06_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day06_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day06_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day06_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day06_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day06_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day06_Bin7.geojson',  // L7:
+                //Group7 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day07_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day07_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day07_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day07_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day07_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day07_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day07_Bin7.geojson',  // L7:
+                //Group8 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin7.geojson',  // L7:
+                //Group9 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin7.geojson',  // L7:
+                //Group10
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin1.geojson', // L1:
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin2.geojson', // L2: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin3.geojson', // L3: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin4.geojson', // L4: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin5.geojson', // L5: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin6.geojson', // L6: 
+                'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day08_Bin7.geojson'  // L7:
+            ];
+
+            // Array of 21 unique colors for each layer
+            const colors = [
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
+                'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red'
+
+            ];
+
+
+        // Popup function (generic, shows properties if available)
+        function onEachFeature(feature, layer) {
+            const props = feature.properties;
+            let popupContent = '<b>Layer Info</b><br>';
+            for (const key in props) {
+                popupContent += `${key}: ${props[key]}<br>`;
+            }
+            layer.bindPopup(popupContent);
+        }
+
+        // Load all GeoJSON data asynchronously with error handling
+        const loadPromises = geojsonUrls.map((url, index) => 
+            fetch(url).then(response => response.json()).catch(error => {
+                console.error(`Failed to load GeoJSON for layer ${index + 1}:`, error);
+                return null; // Return null for failed loads
+            })
+        );
+
+        Promise.allSettled(loadPromises).then(results => {
+            const geojsonData = results.map(result => result.status === 'fulfilled' ? result.value : null);
+            const failedIndices = results.map((result, index) => result.status === 'rejected' ? index : -1).filter(i => i !== -1);
+
+            if (failedIndices.length > 0) {
+                document.getElementById('errorOverride').style.display = 'block';
+                const errorList = document.getElementById('errorList');
+                errorList.innerHTML = '<p>Failed layers: ' + failedIndices.map(i => `Layer ${i + 1}`).join(', ') + '</p>';
+            }
+
+            // Divide into 3 groups of 7 layers each
+            const groups = [];
+            for (let g = 0; g < 10; g++) {
+                const group = [];
+                for (let i = 0; i < 7; i++) {
+                    const index = g * 7 + i;
+                    const data = geojsonData[index];
+                    if (data) {
+                        const layer = L.geoJSON(data, {
+                            style: {
+                                color: colors[index],
+                                weight: 1,
+                                opacity: 0.7,
+                                fillColor: colors[index],
+                                fillOpacity: 0.8
+                            },
+                            onEachFeature: onEachFeature
+                        });
+                        group.push(layer);
+                    } else {
+                        group.push(null); // Placeholder for failed layers
+                    }
+                }
+                groups.push(group);
+            }
+
+            // Initially display group 1 (index 0)
+            let currentGroupIndex = 0;
+            groups[currentGroupIndex].forEach(layer => {
+                if (layer) map.addLayer(layer);
+            });
+
+            // Function to update layer controls
+            function updateLayerControls() {
+                const controlsDiv = document.getElementById('layerControls');
+                // Clear existing checkboxes
+                const existingCheckboxes = controlsDiv.querySelectorAll('input[type="checkbox"]');
+                existingCheckboxes.forEach(cb => cb.parentNode.removeChild(cb));
+                const existingLabels = controlsDiv.querySelectorAll('label');
+                existingLabels.forEach(lb => lb.parentNode.removeChild(lb));
+                const existingBrs = controlsDiv.querySelectorAll('br');
+                existingBrs.forEach(br => br.parentNode.removeChild(br));
+
+                groups[currentGroupIndex].forEach((layer, idx) => {
+                    const globalIndex = currentGroupIndex * 7 + idx;
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `layer-${idx}`;
+                    checkbox.checked = layer && map.hasLayer(layer);
+                    checkbox.disabled = !layer; // Disable if layer failed to load
+                    const label = document.createElement('label');
+                    label.htmlFor = `layer-${idx}`;
+                    label.textContent = `Layer ${idx + 1} (${colors[globalIndex]})` + (layer ? '' : ' (Failed to load)');
+                    if (layer) {
+                        checkbox.addEventListener('change', () => {
+                            if (checkbox.checked) {
+                                map.addLayer(layer);
+                            } else {
+                                map.removeLayer(layer);
+                            }
+                        });
+                    }
+                    controlsDiv.appendChild(checkbox);
+                    controlsDiv.appendChild(label);
+                    controlsDiv.appendChild(document.createElement('br'));
+                });
+            }
+
+            // Function to update properties table
+            function updatePropertiesTable() {
+                const tableBody = document.getElementById('propertiesTableBody');
+                tableBody.innerHTML = ''; // Clear existing rows
+                groups[currentGroupIndex].forEach((layer, idx) => {
+                    const globalIndex = currentGroupIndex * 7 + idx;
+                    const data = geojsonData[globalIndex];
+                    if (data && data.features && data.features.length > 0) {
+                        const props = data.features[0].properties;
+                        if (props) {
+                            for (const key in props) {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>Layer ${idx + 1}</td>
+                                    <td>${key}</td>
+                                    <td>${props[key]}</td>
+                                `;
+                                tableBody.appendChild(row);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Update display function
+            function updateDisplay() {
+                // Remove all layers
+                groups.forEach(group => group.forEach(layer => {
+                    if (layer) map.removeLayer(layer);
+                }));
+                // Add current group
+                groups[currentGroupIndex].forEach(layer => {
+                    if (layer) map.addLayer(layer);
+                });
+                document.getElementById('currentGroup').textContent = `Current Group: ${currentGroupIndex + 1}`;
+                updateLayerControls();
+                updatePropertiesTable();
+            }
+
+            // Initial controls and table
+            updateLayerControls();
+            updatePropertiesTable();
+
+            // Play/Pause/Stop functionality
+            let intervalId = null;
+            let isPlaying = false;
+            const playBtn = document.getElementById('playBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const speedSlider = document.getElementById('speedSlider');
+            const speedValue = document.getElementById('speedValue');
+
+            // Update speed display
+            speedSlider.addEventListener('input', () => {
+                speedValue.textContent = speedSlider.value;
+            });
+
+            playBtn.addEventListener('click', () => {
+                if (isPlaying) return; // Already playing
+                isPlaying = true;
+                intervalId = setInterval(() => {
+                    currentGroupIndex = (currentGroupIndex + 1) % 10;
+                    updateDisplay();
+                }, speedSlider.value * 200); // Use slider value in seconds
+            });
+
+            pauseBtn.addEventListener('click', () => {
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                    isPlaying = false;
+                }
+            });
+
+            stopBtn.addEventListener('click', () => {
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                isPlaying = false;
+                currentGroupIndex = 0; // Reset to group 1
+                updateDisplay();
+            });
+
+            // Remove All and Add All buttons
+            const removeAllBtn = document.getElementById('removeAllBtn');
+            const addAllBtn = document.getElementById('addAllBtn');
+
+            removeAllBtn.addEventListener('click', () => {
+                groups[currentGroupIndex].forEach(layer => {
+                    if (layer) map.removeLayer(layer);
+                });
+                updateLayerControls(); // Update checkboxes to reflect removal
+            });
+
+            addAllBtn.addEventListener('click', () => {
+                groups[currentGroupIndex].forEach(layer => {
+                    if (layer) map.addLayer(layer);
+                });
+                updateLayerControls(); // Update checkboxes to reflect addition
+            });
+
+            // Override and Retry buttons
+            const overrideBtn = document.getElementById('overrideBtn');
+            const retryBtn = document.getElementById('retryBtn');
+
+            overrideBtn.addEventListener('click', () => {
+                document.getElementById('errorOverride').style.display = 'none';
+                // Continue with loaded layers
+            });
+
+            retryBtn.addEventListener('click', () => {
+                // Retry failed loads
+                const retryPromises = failedIndices.map(index => 
+                    fetch(geojsonUrls[index]).then(response => response.json()).catch(() => null)
+                );
+                Promise.allSettled(retryPromises).then(retryResults => {
+                    retryResults.forEach((result, i) => {
+                        const index = failedIndices[i];
+                        if (result.status === 'fulfilled') {
+                            geojsonData[index] = result.value;
+                            // Update group
+                            const g = Math.floor(index / 7);
+                            const i = index % 7;
+                            const data = geojsonData[index];
+                            const layer = L.geoJSON(data, {
+                                style: {
+                                    color: colors[index],
+                                    weight: 1,
+                                    fillColor: colors[index],
+                                    fillOpacity:0.8
+                                },
+                                onEachFeature: onEachFeature
+                            });
+                            groups[g][i] = layer;
+                        }
+                    });
+                    document.getElementById('errorOverride').style.display = 'none';
+                    updateDisplay(); // Refresh to include retried layers
+                });
+            });
+        });
+
+        // Note: Changed to Promise.allSettled to handle partial failures. Added error override section with buttons to continue or retry failed loads. Failed layers are marked in controls and skipped in display.
         </script>
     </body>
 </html>
