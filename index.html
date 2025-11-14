@@ -23,7 +23,7 @@
                 font-family: Arial, sans-serif;
             }
             #map {
-                height: 80vh;
+                height: 77vh;
                 width: 100%;
             }
             #controls {
@@ -173,9 +173,10 @@
                 overflow-y: auto;
             }
             .legend-toggle {
-                background: none;
+                background: white;
+                color: black;
                 border: none;
-                font-size: 16px;
+                font-size: 20px;
                 cursor: pointer;
                 width: 100%;
                 text-align: left;
@@ -367,17 +368,18 @@
                 background-color: #268171;
                 color: white;
             }
-            #navbar { background: #f0f0f0; padding: 10px; border-bottom: 1px solid #ccc; }
+            #navbar { background: white; padding: 10px; border: 15px solid teal; border-bottom: 1px solid #ccc; }
             #navbar summary { cursor: pointer; font-weight: bold; padding: 10px; background: #e0e0e0; border: 1px solid #ccc; margin-bottom: 10px; }
             #navbar details[open] summary { background: #d0d0d0; }
-            button { margin: 5px; padding: 5px 10px; }
+            button { margin: 7px; padding: 7px 20px; background: teal; color: white; border: 5px; border-radius: 3px; }
+            button:hover { background: navy; }
             #layerControls label { display: block; margin: 5px 0; }
             #speedControl { margin: 10px 0; display: flex; align-items: center; }
             #speedControl label { margin-right: 10px; }
             #propertiesTable { margin: 10px; border-collapse: collapse; width: 100%; }
             #propertiesTable th, #propertiesTable td { border: 1px solid #ccc; padding: 8px; text-align: left; }
             #propertiesTable th { background-color: #f2f2f2; }
-            #propertiesContainer { background: #f9f9f9; padding: 10px; border: 1px solid #ccc; }
+            #propertiesContainer { background: white; padding: 10px; border: 10px solid teal; }
             #propertiesContainer summary { cursor: pointer; font-weight: bold; padding: 10px; background: #e0e0e0; border: 1px solid #ccc; }
             #propertiesContainer details[open] summary { background: #d0d0d0; }
             #errorOverride { margin: 10px; padding: 10px; background: #ffe6e6; border: 1px solid #ff9999; display: none; }
@@ -399,13 +401,20 @@
             <button class="button button2" onclick="AWSbutton()"> AWS Monitoring</button>
             <button class="button4" id="toggle-buffer">20-KM Warning</button>
         </div>
+        <div id="errorOverride">
+            <p>Some GeoJSON layers failed to load. <button id="overrideBtn">Override Errors and Continue</button> <button id="retryBtn">Retry Failed Loads</button></p>
+            <div id="errorList"></div>
+        </div>
+
         <nav id="navbar">
             <details>
-                <summary>CReSS Layer Controls</summary>
+                <summary>Map Controls</summary>
                 <h5>Group Controls</h5>
+                <button id="prevBtn">Prev</button>
                 <button id="playBtn">Play</button>
                 <button id="pauseBtn">Pause</button>
                 <button id="stopBtn">Stop</button>
+                <button id="nextBtn">Next</button>
                 <span id="currentGroup">Day: 1</span>
                 <div id="speedControl">
                     <label for="speedSlider">Speed (seconds per group):</label>
@@ -418,6 +427,7 @@
                 <div id="layerControls"></div>
             </details>
         </nav>
+
         <div id="map"></div>
 
         <div id="propertiesContainer">
@@ -772,7 +782,6 @@ ${forecastData}
             </table>
             </div>
 `;
-
                     // Bind popup to both marker and circle
                     marker.bindPopup(popupContent);
                     circle.bindPopup(popupContent);
@@ -809,9 +818,10 @@ ${forecastData}
                 window.open('https://ligtas.uplb.edu.ph/automatic-weather-station-monitoring/', '_blank');
             }
 
-           
-       const geojsonUrls = [
-                
+
+            // Array of 21 GeoJSON URLs (public datasets from Natural Earth and other sources)
+            const geojsonUrls = [
+
                 //Group1 
                 'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin1.geojson', // L1:
                 'https://raw.githubusercontent.com/Gabzrock/CRSS/refs/heads/main/Daily_RF_Day01_Bin2.geojson', // L2: 
@@ -917,245 +927,255 @@ ${forecastData}
 
             ];
 
-
-        // Popup function (generic, shows properties if available)
-        function onEachFeature(feature, layer) {
-            const props = feature.properties;
-            let popupContent = '<b>Layer Info</b><br>';
-            for (const key in props) {
-                popupContent += `${key}: ${props[key]}<br>`;
+            // Popup function (generic, shows properties if available)
+            function onEachFeature(feature, layer) {
+                const props = feature.properties;
+                let popupContent = '<b>Layer Info</b><br>';
+                for (const key in props) {
+                    popupContent += `${key}: ${props[key]}<br>`;
+                }
+                layer.bindPopup(popupContent);
             }
-            layer.bindPopup(popupContent);
-        }
 
-        // Load all GeoJSON data asynchronously with error handling
-        const loadPromises = geojsonUrls.map((url, index) => 
-            fetch(url).then(response => response.json()).catch(error => {
+            // Load all GeoJSON data asynchronously with error handling
+            const loadPromises = geojsonUrls.map((url, index) => 
+                                                 fetch(url).then(response => response.json()).catch(error => {
                 console.error(`Failed to load GeoJSON for layer ${index + 1}:`, error);
                 return null; // Return null for failed loads
             })
-        );
+                                                );
 
-        Promise.allSettled(loadPromises).then(results => {
-            const geojsonData = results.map(result => result.status === 'fulfilled' ? result.value : null);
-            const failedIndices = results.map((result, index) => result.status === 'rejected' ? index : -1).filter(i => i !== -1);
+            Promise.allSettled(loadPromises).then(results => {
+                const geojsonData = results.map(result => result.status === 'fulfilled' ? result.value : null);
+                const failedIndices = results.map((result, index) => result.status === 'rejected' ? index : -1).filter(i => i !== -1);
 
-            if (failedIndices.length > 0) {
-                document.getElementById('errorOverride').style.display = 'block';
-                const errorList = document.getElementById('errorList');
-                errorList.innerHTML = '<p>Failed layers: ' + failedIndices.map(i => `Layer ${i + 1}`).join(', ') + '</p>';
-            }
-
-            // Divide into 3 groups of 7 layers each
-            const groups = [];
-            for (let g = 0; g < 10; g++) {
-                const group = [];
-                for (let i = 0; i < 7; i++) {
-                    const index = g * 7 + i;
-                    const data = geojsonData[index];
-                    if (data) {
-                        const layer = L.geoJSON(data, {
-                            style: {
-                                color: colors[index],
-                                weight: 1,
-                                opacity: 0.7,
-                                fillColor: colors[index],
-                                fillOpacity: 0.8
-                            },
-                            onEachFeature: onEachFeature
-                        });
-                        group.push(layer);
-                    } else {
-                        group.push(null); // Placeholder for failed layers
-                    }
+                if (failedIndices.length > 0) {
+                    document.getElementById('errorOverride').style.display = 'block';
+                    const errorList = document.getElementById('errorList');
+                    errorList.innerHTML = '<p>Failed layers: ' + failedIndices.map(i => `Layer ${i + 1}`).join(', ') + '</p>';
                 }
-                groups.push(group);
-            }
 
-            // Initially display group 1 (index 0)
-            let currentGroupIndex = 0;
-
-
-            // Function to update layer controls
-            function updateLayerControls() {
-                const controlsDiv = document.getElementById('layerControls');
-                // Clear existing checkboxes
-                const existingCheckboxes = controlsDiv.querySelectorAll('input[type="checkbox"]');
-                existingCheckboxes.forEach(cb => cb.parentNode.removeChild(cb));
-                const existingLabels = controlsDiv.querySelectorAll('label');
-                existingLabels.forEach(lb => lb.parentNode.removeChild(lb));
-                const existingBrs = controlsDiv.querySelectorAll('br');
-                existingBrs.forEach(br => br.parentNode.removeChild(br));
-
-                groups[currentGroupIndex].forEach((layer, idx) => {
-                    const globalIndex = currentGroupIndex * 7 + idx;
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.id = `layer-${idx}`;
-                    checkbox.checked = layer && map.hasLayer(layer);
-                    checkbox.disabled = !layer; // Disable if layer failed to load
-                    const label = document.createElement('label');
-                    label.htmlFor = `layer-${idx}`;
-                    label.textContent = `Layer ${idx + 1} (${colors[globalIndex]})` + (layer ? '' : ' (Failed to load)');
-                    if (layer) {
-                        checkbox.addEventListener('change', () => {
-                            if (checkbox.checked) {
-                                map.addLayer(layer);
-                            } else {
-                                map.removeLayer(layer);
-                            }
-                        });
-                    }
-                    controlsDiv.appendChild(checkbox);
-                    controlsDiv.appendChild(label);
-                    controlsDiv.appendChild(document.createElement('br'));
-                });
-            }
-
-            // Function to update properties table
-            function updatePropertiesTable() {
-                const tableBody = document.getElementById('propertiesTableBody');
-                tableBody.innerHTML = ''; // Clear existing rows
-                groups[currentGroupIndex].forEach((layer, idx) => {
-                    const globalIndex = currentGroupIndex * 7 + idx;
-                    const data = geojsonData[globalIndex];
-                    if (data && data.features && data.features.length > 0) {
-                        const props = data.features[0].properties;
-                        if (props) {
-                            for (const key in props) {
-                                const row = document.createElement('tr');
-                                row.innerHTML = `
-                                    <td>Layer ${idx + 1}</td>
-                                    <td>${key}</td>
-                                    <td>${props[key]}</td>
-                                `;
-                                tableBody.appendChild(row);
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Update display function
-            function updateDisplay() {
-                // Remove all layers
-                groups.forEach(group => group.forEach(layer => {
-                    if (layer) map.removeLayer(layer);
-                }));
-                // Add current group
-                groups[currentGroupIndex].forEach(layer => {
-                    if (layer) map.addLayer(layer);
-                });
-                document.getElementById('currentGroup').textContent = `Day: ${currentGroupIndex + 1}`;
-                updateLayerControls();
-                updatePropertiesTable();
-            }
-
-            // Initial controls and table
-            updateLayerControls();
-            updatePropertiesTable();
-
-            // Play/Pause/Stop functionality
-            let intervalId = null;
-            let isPlaying = false;
-            const playBtn = document.getElementById('playBtn');
-            const pauseBtn = document.getElementById('pauseBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const speedSlider = document.getElementById('speedSlider');
-            const speedValue = document.getElementById('speedValue');
-
-            // Update speed display
-            speedSlider.addEventListener('input', () => {
-                speedValue.textContent = speedSlider.value;
-            });
-
-            playBtn.addEventListener('click', () => {
-                if (isPlaying) return; // Already playing
-                isPlaying = true;
-                intervalId = setInterval(() => {
-                    currentGroupIndex = (currentGroupIndex + 1) % 10;
-                    updateDisplay();
-                }, speedSlider.value * 200); // Use slider value in seconds
-            });
-
-            pauseBtn.addEventListener('click', () => {
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                    isPlaying = false;
-                }
-            });
-
-            stopBtn.addEventListener('click', () => {
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-                isPlaying = false;
-                currentGroupIndex = 0; // Reset to group 1
-                updateDisplay();
-            });
-
-            // Remove All and Add All buttons
-            const removeAllBtn = document.getElementById('removeAllBtn');
-            const addAllBtn = document.getElementById('addAllBtn');
-
-            removeAllBtn.addEventListener('click', () => {
-                groups[currentGroupIndex].forEach(layer => {
-                    if (layer) map.removeLayer(layer);
-                });
-                updateLayerControls(); // Update checkboxes to reflect removal
-            });
-
-            addAllBtn.addEventListener('click', () => {
-                groups[currentGroupIndex].forEach(layer => {
-                    if (layer) map.addLayer(layer);
-                });
-                updateLayerControls(); // Update checkboxes to reflect addition
-            });
-
-            // Override and Retry buttons
-            const overrideBtn = document.getElementById('overrideBtn');
-            const retryBtn = document.getElementById('retryBtn');
-
-            overrideBtn.addEventListener('click', () => {
-                document.getElementById('errorOverride').style.display = 'none';
-                // Continue with loaded layers
-            });
-
-            retryBtn.addEventListener('click', () => {
-                // Retry failed loads
-                const retryPromises = failedIndices.map(index => 
-                    fetch(geojsonUrls[index]).then(response => response.json()).catch(() => null)
-                );
-                Promise.allSettled(retryPromises).then(retryResults => {
-                    retryResults.forEach((result, i) => {
-                        const index = failedIndices[i];
-                        if (result.status === 'fulfilled') {
-                            geojsonData[index] = result.value;
-                            // Update group
-                            const g = Math.floor(index / 7);
-                            const i = index % 7;
-                            const data = geojsonData[index];
+                // Divide into 3 groups of 7 layers each
+                const groups = [];
+                for (let g = 0; g < 10; g++) {
+                    const group = [];
+                    for (let i = 0; i < 7; i++) {
+                        const index = g * 7 + i;
+                        const data = geojsonData[index];
+                        if (data) {
                             const layer = L.geoJSON(data, {
                                 style: {
                                     color: colors[index],
                                     weight: 1,
+                                    opacity: 0.7,
                                     fillColor: colors[index],
-                                    fillOpacity:0.8
+                                    fillOpacity: 0.4
                                 },
                                 onEachFeature: onEachFeature
                             });
-                            groups[g][i] = layer;
+                            group.push(layer);
+                        } else {
+                            group.push(null); // Placeholder for failed layers
+                        }
+                    }
+                    groups.push(group);
+                }
+
+                // Initially display group 1 (index 0)
+                let currentGroupIndex = 0;
+                // Function to update layer controls
+                function updateLayerControls() {
+                    const controlsDiv = document.getElementById('layerControls');
+                    // Clear existing checkboxes
+                    const existingCheckboxes = controlsDiv.querySelectorAll('input[type="checkbox"]');
+                    existingCheckboxes.forEach(cb => cb.parentNode.removeChild(cb));
+                    const existingLabels = controlsDiv.querySelectorAll('label');
+                    existingLabels.forEach(lb => lb.parentNode.removeChild(lb));
+                    const existingBrs = controlsDiv.querySelectorAll('br');
+                    existingBrs.forEach(br => br.parentNode.removeChild(br));
+
+                    groups[currentGroupIndex].forEach((layer, idx) => {
+                        const globalIndex = currentGroupIndex * 7 + idx;
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = `layer-${idx}`;
+                        checkbox.checked = layer && map.hasLayer(layer);
+                        checkbox.disabled = !layer; // Disable if layer failed to load
+                        const label = document.createElement('label');
+                        label.htmlFor = `layer-${idx}`;
+                        label.textContent = `Layer ${idx + 1} (${colors[globalIndex]})` + (layer ? '' : ' (Failed to load)');
+                        if (layer) {
+                            checkbox.addEventListener('change', () => {
+                                if (checkbox.checked) {
+                                    map.addLayer(layer);
+                                } else {
+                                    map.removeLayer(layer);
+                                }
+                            });
+                        }
+                        controlsDiv.appendChild(checkbox);
+                        controlsDiv.appendChild(label);
+                        controlsDiv.appendChild(document.createElement('br'));
+                    });
+                }
+
+                // Function to update properties table
+                function updatePropertiesTable() {
+                    const tableBody = document.getElementById('propertiesTableBody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    groups[currentGroupIndex].forEach((layer, idx) => {
+                        const globalIndex = currentGroupIndex * 7 + idx;
+                        const data = geojsonData[globalIndex];
+                        if (data && data.features && data.features.length > 0) {
+                            const props = data.features[0].properties;
+                            if (props) {
+                                for (const key in props) {
+                                    const row = document.createElement('tr');
+                                    row.innerHTML = `
+<td>Layer ${idx + 1}</td>
+<td>${key}</td>
+<td>${props[key]}</td>
+`;
+                                    tableBody.appendChild(row);
+                                }
+                            }
                         }
                     });
+                }
+
+                // Update display function
+                function updateDisplay() {
+                    // Remove all layers
+                    groups.forEach(group => group.forEach(layer => {
+                        if (layer) map.removeLayer(layer);
+                    }));
+                    // Add current group
+                    groups[currentGroupIndex].forEach(layer => {
+                        if (layer) map.addLayer(layer);
+                    });
+                    document.getElementById('currentGroup').textContent = `Day: ${currentGroupIndex + 1}`;
+                    updateLayerControls();
+                    updatePropertiesTable();
+                }
+
+                // Initial controls and table
+                updateLayerControls();
+                updatePropertiesTable();
+
+                // Play/Pause/Stop/Prev/Next functionality
+                let intervalId = null;
+                let isPlaying = false;
+                const prevBtn = document.getElementById('prevBtn');
+                const playBtn = document.getElementById('playBtn');
+                const pauseBtn = document.getElementById('pauseBtn');
+                const stopBtn = document.getElementById('stopBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const speedSlider = document.getElementById('speedSlider');
+                const speedValue = document.getElementById('speedValue');
+
+                // Update speed display
+                speedSlider.addEventListener('input', () => {
+                    speedValue.textContent = speedSlider.value;
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    currentGroupIndex = (currentGroupIndex - 1 + 10) % 10;
+                    updateDisplay();
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (isPlaying) return; // Already playing
+                    isPlaying = true;
+                    intervalId = setInterval(() => {
+                        currentGroupIndex = (currentGroupIndex + 1) % 10;
+                        updateDisplay();
+                    }, speedSlider.value * 1000); // Use slider value in seconds
+                });
+
+                pauseBtn.addEventListener('click', () => {
+                    if (intervalId) {
+                        clearInterval(intervalId);
+                        intervalId = null;
+                        isPlaying = false;
+                    }
+                });
+
+                stopBtn.addEventListener('click', () => {
+                    if (intervalId) {
+                        clearInterval(intervalId);
+                        intervalId = null;
+                    }
+                    isPlaying = false;
+                    currentGroupIndex = 0; // Reset to group 1
+                    updateDisplay();
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    currentGroupIndex = (currentGroupIndex + 1) % 10;
+                    updateDisplay();
+                });
+
+                // Remove All and Add All buttons
+                const removeAllBtn = document.getElementById('removeAllBtn');
+                const addAllBtn = document.getElementById('addAllBtn');
+
+                removeAllBtn.addEventListener('click', () => {
+                    groups[currentGroupIndex].forEach(layer => {
+                        if (layer) map.removeLayer(layer);
+                    });
+                    updateLayerControls(); // Update checkboxes to reflect removal
+                });
+
+                addAllBtn.addEventListener('click', () => {
+                    groups[currentGroupIndex].forEach(layer => {
+                        if (layer) map.addLayer(layer);
+                    });
+                    updateLayerControls(); // Update checkboxes to reflect addition
+                });
+
+                // Override and Retry buttons
+                const overrideBtn = document.getElementById('overrideBtn');
+                const retryBtn = document.getElementById('retryBtn');
+
+                overrideBtn.addEventListener('click', () => {
                     document.getElementById('errorOverride').style.display = 'none';
-                    updateDisplay(); // Refresh to include retried layers
+                    // Continue with loaded layers
+                });
+
+                retryBtn.addEventListener('click', () => {
+                    // Retry failed loads
+                    const retryPromises = failedIndices.map(index => 
+                                                            fetch(geojsonUrls[index]).then(response => response.json()).catch(() => null)
+                                                           );
+                    Promise.allSettled(retryPromises).then(retryResults => {
+                        retryResults.forEach((result, i) => {
+                            const index = failedIndices[i];
+                            if (result.status === 'fulfilled') {
+                                geojsonData[index] = result.value;
+                                // Update group
+                                const g = Math.floor(index / 7);
+                                const i = index % 7;
+                                const data = geojsonData[index];
+                                const layer = L.geoJSON(data, {
+                                    style: {
+                                        color: colors[index],
+                                        weight: 1,
+                                        opacity: 0.7,
+                                        fillColor: colors[index],
+                                        fillOpacity: 1.1
+                                    },
+                                    onEachFeature: onEachFeature
+                                });
+                                groups[g][i] = layer;
+                            }
+                        });
+                        document.getElementById('errorOverride').style.display = 'none';
+                        updateDisplay(); // Refresh to include retried layers
+                    });
                 });
             });
-        });
 
-        // Note: Changed to Promise.allSettled to handle partial failures. Added error override section with buttons to continue or retry failed loads. Failed layers are marked in controls and skipped in display.
+            // Note: Added Prev and Next buttons to manually navigate groups. Prev goes to previous group (cycling), Next to next. They work independently of Play/Pause.
         </script>
     </body>
 </html>
