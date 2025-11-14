@@ -23,7 +23,7 @@
                 font-family: Arial, sans-serif;
             }
             #map {
-                height: 70vh;
+                height: 80vh;
                 width: 100%;
             }
             #controls {
@@ -530,8 +530,10 @@
             });
             map.addControl(searchControl);
 
-
-
+            // Reset view
+            L.control.resetView = function() { return new L.Control.ResetView(); };
+            L.Control.ResetView = L.Control.extend({ onAdd: map => { const c = L.DomUtil.create('div', 'leaflet-control-reset'); c.innerHTML = '🏠 Reset'; c.onclick = () => map.setView([12.8797, 121.7740], 6); return c; } });
+            L.control.resetView().addTo(map);
             // Function to create a GeoJSON layer (now includes description and dot markers)
             function createGeoJSONLayer(name, description, geojsonUrl, styleOptions = {}) {
                 const fullName = `${name}: ${description}`;  // Append description to name
@@ -596,7 +598,7 @@
                 { name: 'ASTI AWS', desc: 'ASTI AWS', color: 'white' }
             ];
 
-            // Array of layer promises with descriptions (replace URLs and descriptions with your data)
+                      // Array of layer promises with descriptions (replace URLs and descriptions with your data)
             const layerPromises = [
                 createGeoJSONLayer('LIGTAS-LSDB', 'LIGTAS-AGAD Landslide database', 'https://raw.githubusercontent.com/Gabzrock/LIGTAS-AGAD/refs/heads/main/LandslideDB-web.geojson', { color: 'orange', weight: 2 }),
                 createGeoJSONLayer('PH boundary', 'Philippine Boundary', 'https://raw.githubusercontent.com/Gabzrock/LIGTAS-AGAD/refs/heads/main/country.0.01.json', { color: 'white', weight: 1 }),
@@ -693,24 +695,7 @@
                 }
             }
 
-            // Add click event to pin location and show forecast
-            map.on('click', async function(e) {
-                const lat = e.latlng.lat.toFixed(6);
-                const lng = e.latlng.lng.toFixed(6);
-                const forecastData = await getForecast(lat, lng);
-                const popupContent = `
-<div class="popup-content">
-<h3>Pinned Location</h3>
-<p><strong>Latitude:</strong> ${lat}</p>
-<p><strong>Longitude:</strong> ${lng}</p>
-${forecastData}
-            </div>
-`;
-                L.popup()
-                    .setLatLng(e.latlng)
-                    .setContent(popupContent)
-                    .openOn(map);
-            });
+           
 
             // Fetch data from Sheetlabs API (replace with your actual API endpoint)
             // Example endpoint: https://sheetlabs.com/API/YOUR_SHEET_ID (you need to provide the real one)
@@ -792,24 +777,7 @@ ${forecastData}
                 alert('Failed to load data from API. Check the console for details.');
             });
 
-            // Add a custom reset view control
-            L.Control.ResetView = L.Control.extend({
-                onAdd: function(map) {
-                    const container = L.DomUtil.create('div', 'leaflet-control-reset');
-                    container.innerHTML = 'Reset View';
-                    container.onclick = function() {
-                        map.setView(initialCenter, initialZoom);
-                    };
-                    return container;
-                }
-            });
-
-            L.control.resetView = function(opts) {
-                return new L.Control.ResetView(opts);
-            };
-
-            L.control.resetView().addTo(map);
-
+           
             // navigation buttons
             function Homebutton() {
                 window.open('https://ligtas.uplb.edu.ph/', '_blank');
@@ -924,7 +892,6 @@ ${forecastData}
                 'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
                 'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red',
                 'violet', 'indigo', 'blue', 'green', 'yellow', 'orange', 'red'
-
             ];
 
             // Popup function (generic, shows properties if available)
@@ -1175,7 +1142,59 @@ ${forecastData}
                 });
             });
 
+            
             // Note: Added Prev and Next buttons to manually navigate groups. Prev goes to previous group (cycling), Next to next. They work independently of Play/Pause.
+            
+            // Function to fetch elevation from Open-Elevation API
+        async function getElevation(lat, lng) {
+            try {
+                const response = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lng}`);
+                const data = await response.json();
+                return data.results[0].elevation || 'N/A';
+            } catch (error) {
+                console.error('Error fetching elevation:', error);
+                return 'N/A';
+            }
+        }
+
+        // Function to fetch address using Nominatim (reverse geocoding)
+        async function getAddress(lat, lng) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                const data = await response.json();
+                return data.display_name || 'N/A';
+            } catch (error) {
+                console.error('Error fetching address:', error);
+                return 'N/A';
+            }
+        }
+
+        // Event listener for map clicks
+        map.on('click', async function(e) {
+            const { lat, lng } = e.latlng;
+            
+            // Fetch elevation and address in parallel
+            const [elevation, address] = await Promise.all([
+                getElevation(lat, lng),
+                getAddress(lat, lng)
+            ]);
+            
+            // Create popup content
+            const popupContent = `
+                <strong>Coordinates:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}<br>
+                <strong>Elevation:</strong> ${elevation} meters<br>
+                <strong>Address:</strong> ${address}<br>
+                <a href="YOUR_GOOGLE_FORM_LINK_HERE" target="_blank">Submit via Google Form</a>
+            `;
+            
+            // Add marker with popup
+            const marker = L.marker([lat, lng]).addTo(map).bindPopup(popupContent).openPopup();
+            
+            // Remove marker on click
+            marker.on('click', function() {
+                map.removeLayer(marker);
+            });
+        });
         </script>
     </body>
 </html>
